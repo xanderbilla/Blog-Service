@@ -23,7 +23,7 @@ public class ResponseWrapper<T> {
 
     public static <T> ResponseWrapper<T> success(String message, T data) {
         return ResponseWrapper.<T>builder()
-                .status("success")
+                .status("SUCCESS")
                 .message(message)
                 .data(data)
                 .timestamp(LocalDateTime.now())
@@ -33,7 +33,7 @@ public class ResponseWrapper<T> {
 
     public static <T> ResponseWrapper<T> error(String message, int statusCode) {
         return ResponseWrapper.<T>builder()
-                .status("error")
+                .status("ERROR")
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .statusCode(statusCode)

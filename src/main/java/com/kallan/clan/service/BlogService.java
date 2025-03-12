@@ -26,12 +26,10 @@ public class BlogService {
         return blogRepository.save(blog);
     }
 
-    // Retrieve all blogs
     public Page<Blog> getAllBlogs(int page, int size) {
         return blogRepository.findAll(PageRequest.of(page, size));
     }
 
-    // Retrieve a blog by ID
     public Blog getBlogById(Long id) {
         return blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found with id: " + id));
@@ -40,31 +38,9 @@ public class BlogService {
     @Transactional
     public Blog updateBlog(Long id, Blog updatedBlog) {
         return blogRepository.findById(id).map(existingBlog -> {
-            boolean isUpdated = false;
-
-            // Preserve existing values if not provided in request
-            String newTitle = updatedBlog.getTitle() != null ? updatedBlog.getTitle() : existingBlog.getTitle();
-            String newContent = updatedBlog.getContent() != null ? updatedBlog.getContent() : existingBlog.getContent();
-            String newAuthor = updatedBlog.getAuthor() != null ? updatedBlog.getAuthor() : existingBlog.getAuthor();
-
-            if (!existingBlog.getTitle().equals(newTitle)) {
-                existingBlog.setTitle(newTitle);
-                isUpdated = true;
-            }
-            if (!existingBlog.getContent().equals(newContent)) {
-                existingBlog.setContent(newContent);
-                isUpdated = true;
-            }
-            if (!existingBlog.getAuthor().equals(newAuthor)) {
-                existingBlog.setAuthor(newAuthor);
-                isUpdated = true;
-            }
-
-            if (isUpdated) {
-                existingBlog.setUpdatedAt(LocalDateTime.now());
-                return blogRepository.save(existingBlog);
-            }
-            return existingBlog;
+            updateBlogFields(existingBlog, updatedBlog);
+            existingBlog.setUpdatedAt(LocalDateTime.now());
+            return blogRepository.save(existingBlog);
         }).orElseThrow(() -> new ResourceNotFoundException("Blog not found with id: " + id));
     }
 
@@ -75,5 +51,17 @@ public class BlogService {
         }
         blogRepository.deleteById(id);
         return true;
+    }
+
+    private void updateBlogFields(Blog existingBlog, Blog updatedBlog) {
+        if (updatedBlog.getTitle() != null && !updatedBlog.getTitle().equals(existingBlog.getTitle())) {
+            existingBlog.setTitle(updatedBlog.getTitle());
+        }
+        if (updatedBlog.getContent() != null && !updatedBlog.getContent().equals(existingBlog.getContent())) {
+            existingBlog.setContent(updatedBlog.getContent());
+        }
+        if (updatedBlog.getAuthor() != null && !updatedBlog.getAuthor().equals(existingBlog.getAuthor())) {
+            existingBlog.setAuthor(updatedBlog.getAuthor());
+        }
     }
 }
