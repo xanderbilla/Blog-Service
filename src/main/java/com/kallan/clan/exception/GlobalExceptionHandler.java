@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ResponseWrapper<String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ResponseWrapper.error(ex.getMessage(), 404));
+                .body(ResponseWrapper.error("The requested resource was not found. Please check your request and try again.", 404));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -24,12 +24,18 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.badRequest()
-                .body(ResponseWrapper.error("Validation failed", 400));
+            .body(ResponseWrapper.error(errors.values().iterator().next() + " Please correct the errors and try again.", 400));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseWrapper<String>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseWrapper.error("An unexpected error occurred: " + ex.getMessage(), 500));
+                .body(ResponseWrapper.error("An unexpected error occurred. Please try again later.", 500));
+    }
+
+    @ExceptionHandler(AIServiceException.class)
+    public ResponseEntity<ResponseWrapper<String>> handleAIServiceException(AIServiceException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ResponseWrapper.error("An error occurred while processing your request. Please try again later.", 500));
     }
 }
