@@ -18,13 +18,17 @@ import java.util.Map;
 public class AIService {
 
     @Value("${gemini.api.key}")
-    private String geminiApiKey;
+    private String API_KEY;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String generateSummary(String text) {
+        if (API_KEY == null || API_KEY.isEmpty()) {
+            throw new AIServiceException("Gemini API key is not configured.");
+        }
+
         String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="
-                + geminiApiKey;
+                + API_KEY;
 
         HttpHeaders headers = createHeaders();
         Map<String, Object> requestBody = createRequestBody(text);
