@@ -45,25 +45,22 @@ Before you begin, ensure you have:
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your-repo/blog-service.git
+   git clone https://github.com/blog-service/blog-service.git
    cd blog-service
    ```
 2. **Configure database connection** in `application.properties` or `application.yml`.
 3. **Run the application:**
    ```sh
-   ./mvnw spring-boot:run
+   docker-compose --env-file .env up 
    ```
 
 ## 🚀 Deployment Guide
 
 ### 🌍 Docker Deployment
 
-1. **Build the Docker image:**
-   ```sh
-   docker build -t blog-service .
-   ```
-2. **Push to a container registry** (e.g., AWS ECR, Docker Hub).
-3. **Deploy to AWS EC2, Lambda, or Elastic Beanstalk.**
+1. **Push the code to GitHub Repository**
+2. Run the `main.sh` file
+3. **Your application is deployed on EC2**
 
 ## 📡 API Endpoints
 
@@ -75,6 +72,14 @@ Before you begin, ensure you have:
 | **PUT**    | `/api/blogs/{id}`         | Update a blog               |
 | **DELETE** | `/api/blogs/{id}`         | Delete a blog               |
 | **POST**   | `/api/blogs/{id}/summary` | Generate blog summary       |
+
+### Request Body for POST and PUT
+
+{
+   "title": "How Developers Can Adapt to AI-Driven Workflows",
+   "author": "Vikas",
+   "content": "This blog provides practical steps on how developers can embrace AI, improve efficiency, and stay relevant in the ever-evolving tech landscape."
+}
 
 ## 👤 Author
 
