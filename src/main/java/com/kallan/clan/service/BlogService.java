@@ -6,6 +6,9 @@ import com.kallan.clan.repository.BlogRepository;
 
 import java.time.LocalDateTime;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,12 +33,14 @@ public class BlogService {
         return blogRepository.findAll(PageRequest.of(page, size));
     }
 
+    @Cacheable(value = "blogs", key = "#id")
     public Blog getBlogById(Long id) {
         return blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog not found with id: " + id));
     }
 
     @Transactional
+    @CachePut(value = "blogs", key = "#id")
     public Blog updateBlog(Long id, Blog updatedBlog) {
         return blogRepository.findById(id).map(existingBlog -> {
             updateBlogFields(existingBlog, updatedBlog);
@@ -45,6 +50,7 @@ public class BlogService {
     }
 
     @Transactional
+    @CacheEvict(value = "blogs", key = "#id")
     public boolean deleteBlog(Long id) {
         if (!blogRepository.existsById(id)) {
             throw new ResourceNotFoundException("Blog not found with id: " + id);
