@@ -1,21 +1,63 @@
-  version: '3.8'
-  services:
-    postgres:
-      image: postgres:latest
-      environment:
-        POSTGRES_DB: kallan_db
-        POSTGRES_USER: kallan
-        POSTGRES_PASSWORD: kallan
-      ports:
-        - "5432:5432"
+version: '3.8'
 
-    app:
-      build: .
-      ports:
-        - "8080:8080"
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kallan_db
-        SPRING_DATASOURCE_USERNAME: kallan
-        SPRING_DATASOURCE_PASSWORD: kallan
-      depends_on:
-        - postgres
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis_insight:
+    image: redislabs/redisinsight:1.14.0
+    container_name: redis_insight
+    restart: always
+    ports:
+      - 8001:8001
+    volumes:
+      - redis_insight_volume_data:/db
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: kallan_db
+      POSTGRES_USER: kallan
+      POSTGRES_PASSWORD: kallan
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kallan -d kallan_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kallan_db
+      SPRING_DATASOURCE_USERNAME: kallan
+      SPRING_DATASOURCE_PASSWORD: kallan
+      GEMINI_API_KEY: ${API_KEY}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  postgres_data:
+  redis_insight_volume_data:
