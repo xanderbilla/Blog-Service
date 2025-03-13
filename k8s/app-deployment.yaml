@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: spring-app
-        image: your-repo/spring-app:latest
+        image: xanderbilla/kallan:latest
         env:
         - name: SPRING_DATASOURCE_URL
           value: jdbc:postgresql://postgres:5432/kallan_db
